@@ -6,7 +6,6 @@ import "../src/contract/Dilithium.sol";
 import "../src/contract/Invntt.sol";
 import "../src/contract/Ntt.sol";
 import "../src/contract/Poly.sol";
-import "../src/contract/PolyVec.sol";
 import "../src/contract/Packing.sol";
 import "../src/contract/Symmetric.sol";
 
@@ -15,7 +14,6 @@ contract DilithiumTest is Test {
     Invntt _invntt;
     Ntt _ntt;
     Polynomial _poly;
-    PolynomialVector _polyVec;
     Packing _packing;
     Stream _stream;
 
@@ -23,10 +21,9 @@ contract DilithiumTest is Test {
         _ntt = new Ntt();
         _invntt = new Invntt();
         _stream = new Stream();
-        _poly = new Polynomial(_ntt, _stream);
-        _polyVec = new PolynomialVector(_ntt, _invntt, _poly);
+        _poly = new Polynomial(_ntt, _invntt, _stream);
         _packing = new Packing(_poly);
-        _dilithium = new Dilithium(_poly, _polyVec, _packing);
+        _dilithium = new Dilithium(_poly, _packing);
     }
 
     function test_dilithiumGas() public view {

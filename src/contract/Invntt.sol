@@ -299,4 +299,61 @@ contract Invntt {
             return a;
         }
     }
+
+    function invntt_4(
+        int32[N][4] memory a
+    ) public pure returns (int32[N][4] memory) {
+        unchecked {
+            int64[N] memory _zetas = zetas();
+            uint256 j;
+            uint256 k = 256;
+            int64 zeta;
+
+            for (uint256 len = 1; len < N; len <<= 1) {
+                uint256 start = 0;
+                while (start < N) {
+                    k -= 1;
+                    zeta = -_zetas[k];
+                    j = start;
+                    while (j < start + len) {
+                        {
+                            int32 t = a[0][j];
+                            int32 tl = a[0][j + len];
+                            a[0][j] = t + tl;
+                            a[0][j + len] = mreduce64(int64(t - tl) * zeta);
+                        }
+                        {
+                            int32 t = a[1][j];
+                            int32 tl = a[1][j + len];
+                            a[1][j] = t + tl;
+                            a[1][j + len] = mreduce64(int64(t - tl) * zeta);
+                        }
+                        {
+                            int32 t = a[2][j];
+                            int32 tl = a[2][j + len];
+                            a[2][j] = t + tl;
+                            a[2][j + len] = mreduce64(int64(t - tl) * zeta);
+                        }
+                        {
+                            int32 t = a[3][j];
+                            int32 tl = a[3][j + len];
+                            a[3][j] = t + tl;
+                            a[3][j + len] = mreduce64(int64(t - tl) * zeta);
+                        }
+                        j += 1;
+                    }
+                    start = j + len;
+                }
+            }
+
+            for (uint256 i = 0; i < N; i++) {
+                a[0][i] = mreduce64(F * int64(a[0][i]));
+                a[1][i] = mreduce64(F * int64(a[1][i]));
+                a[2][i] = mreduce64(F * int64(a[2][i]));
+                a[3][i] = mreduce64(F * int64(a[3][i]));
+            }
+
+            return a;
+        }
+    }
 }
