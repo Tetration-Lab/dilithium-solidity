@@ -179,8 +179,11 @@ contract Dilithium {
         }
     }
 
-    function ntt(Poly memory a) internal view returns (Poly memory) {
-        a.coeffs = ntt(a.coeffs);
+    function ntt(
+        Poly memory a,
+        int64[N] memory zetas
+    ) internal view returns (Poly memory) {
+        a.coeffs = ntt(a.coeffs, zetas);
         return a;
     }
 
@@ -462,7 +465,10 @@ contract Dilithium {
         }
     }
 
-    function ntt_l(PolyVecL memory a) internal view returns (PolyVecL memory) {
+    function ntt_l(
+        PolyVecL memory a,
+        int64[N] memory zetas
+    ) internal view returns (PolyVecL memory) {
         // 0..L
         int32[N][4] memory _b = ntt_4(
             [
@@ -470,7 +476,8 @@ contract Dilithium {
                 a.polys[1].coeffs,
                 a.polys[2].coeffs,
                 a.polys[3].coeffs
-            ]
+            ],
+            zetas
         );
         a.polys[0].coeffs = _b[0];
         a.polys[1].coeffs = _b[1];
@@ -479,7 +486,10 @@ contract Dilithium {
         return a;
     }
 
-    function ntt_k(PolyVecK memory a) internal view returns (PolyVecK memory) {
+    function ntt_k(
+        PolyVecK memory a,
+        int64[N] memory zetas
+    ) internal view returns (PolyVecK memory) {
         // 0..L
         int32[N][4] memory _b = ntt_4(
             [
@@ -487,7 +497,8 @@ contract Dilithium {
                 a.polys[1].coeffs,
                 a.polys[2].coeffs,
                 a.polys[3].coeffs
-            ]
+            ],
+            zetas
         );
         a.polys[0].coeffs = _b[0];
         a.polys[1].coeffs = _b[1];
@@ -497,7 +508,8 @@ contract Dilithium {
     }
 
     function invntt_k(
-        PolyVecK memory a
+        PolyVecK memory a,
+        int64[N] memory zetas
     ) internal view returns (PolyVecK memory) {
         // 0..K
         int32[N][4] memory _b = invntt_4(
@@ -506,7 +518,8 @@ contract Dilithium {
                 a.polys[1].coeffs,
                 a.polys[2].coeffs,
                 a.polys[3].coeffs
-            ]
+            ],
+            zetas
         );
         a.polys[0].coeffs = _b[0];
         a.polys[1].coeffs = _b[1];
@@ -652,9 +665,11 @@ contract Dilithium {
         return false;
     }
 
-    function ntt(int32[N] memory a) internal view returns (int32[N] memory) {
+    function ntt(
+        int32[N] memory a,
+        int64[N] memory _zetas
+    ) internal view returns (int32[N] memory) {
         unchecked {
-            int64[N] memory _zetas = _ntt.zetas();
             uint256 j;
             uint256 k;
             int32 t;
@@ -681,10 +696,10 @@ contract Dilithium {
     }
 
     function ntt_4(
-        int32[N][4] memory a
+        int32[N][4] memory a,
+        int64[N] memory _zetas
     ) internal view returns (int32[N][4] memory) {
         unchecked {
-            int64[N] memory _zetas = _ntt.zetas();
             uint256 j;
             uint256 k;
             int32 t;
@@ -727,9 +742,11 @@ contract Dilithium {
         }
     }
 
-    function invntt(int32[N] memory a) internal view returns (int32[N] memory) {
+    function invntt(
+        int32[N] memory a,
+        int64[N] memory _zetas
+    ) internal view returns (int32[N] memory) {
         unchecked {
-            int64[N] memory _zetas = _ntt.zetas();
             uint256 j;
             uint256 k = 256;
             int64 zeta;
@@ -760,10 +777,10 @@ contract Dilithium {
     }
 
     function invntt_4(
-        int32[N][4] memory a
+        int32[N][4] memory a,
+        int64[N] memory _zetas
     ) internal view returns (int32[N][4] memory) {
         unchecked {
-            int64[N] memory _zetas = _ntt.zetas();
             uint256 j;
             uint256 k = 256;
             int64 zeta;
@@ -824,13 +841,14 @@ contract Dilithium {
         PolyVecK memory t1
     ) internal view returns (bytes memory) {
         Poly memory cp = challenge(c);
-        z = ntt_l(z);
+        int64[N] memory zetas = _ntt.zetas();
+        z = ntt_l(z, zetas);
         PolyVecK memory w1 = matrix_mpointwise(mat, z);
-        cp = ntt(cp);
+        cp = ntt(cp, zetas);
         t1 = poly_mpointwise(cp, t1);
         w1 = sub(w1, t1);
         w1 = reduce(w1);
-        w1 = invntt_k(w1);
+        w1 = invntt_k(w1, zetas);
         w1 = caddq(w1);
         w1 = use_hint(w1, h);
         return pack_w1(w1);
@@ -842,7 +860,7 @@ contract Dilithium {
         epk.packed = keccak256(pack(pk));
         epk.t1 = clone_k(pk.t1);
         epk.t1 = shiftl(epk.t1);
-        epk.t1 = ntt_k(epk.t1);
+        epk.t1 = ntt_k(epk.t1, _ntt.zetas());
         epk.mat = matrix_expand(pk.rho);
     }
 
