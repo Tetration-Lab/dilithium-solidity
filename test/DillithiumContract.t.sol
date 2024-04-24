@@ -3,15 +3,12 @@ pragma solidity 0.8.25;
 
 import "forge-std/Test.sol";
 import "../src/contract/Dilithium.sol";
-import "../src/contract/NttZeta.sol";
 
 contract DilithiumTest is Test {
     Dilithium _dilithium;
-    NttZeta _ntt;
 
     function setUp() public {
-        _ntt = new NttZeta();
-        _dilithium = new Dilithium(_ntt);
+        _dilithium = new Dilithium();
     }
 
     function test_dilithiumGas() public view {
