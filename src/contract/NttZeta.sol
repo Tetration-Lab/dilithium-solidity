@@ -4,9 +4,7 @@ pragma solidity 0.8.25;
 import "../Constants.sol";
 import "../Reduce.sol";
 
-contract Ntt {
-    constructor() {}
-
+contract NttZeta {
     function zetas() public pure returns (int64[N] memory) {
         return [
             int64(0),
@@ -266,80 +264,5 @@ contract Ntt {
             -846154,
             1976782
         ];
-    }
-
-    function ntt(int32[N] memory a) public pure returns (int32[N] memory) {
-        unchecked {
-            int64[N] memory _zetas = zetas();
-            uint256 j;
-            uint256 k;
-            int32 t;
-            int64 zeta;
-
-            for (uint256 len = 128; len > 0; len >>= 1) {
-                uint256 start = 0;
-                while (start < N) {
-                    k += 1;
-                    zeta = _zetas[k];
-                    j = start;
-                    while (j < start + len) {
-                        t = mreduce64(zeta * int64(a[j + len]));
-                        a[j + len] = a[j] - t;
-                        a[j] += t;
-                        j += 1;
-                    }
-                    start = j + len;
-                }
-            }
-
-            return a;
-        }
-    }
-
-    function ntt_4(
-        int32[N][4] memory a
-    ) public pure returns (int32[N][4] memory) {
-        unchecked {
-            int64[N] memory _zetas = zetas();
-            uint256 j;
-            uint256 k;
-            int32 t;
-            int64 zeta;
-
-            for (uint256 len = 128; len > 0; len >>= 1) {
-                uint256 start = 0;
-                while (start < N) {
-                    k += 1;
-                    zeta = _zetas[k];
-                    j = start;
-                    while (j < start + len) {
-                        {
-                            t = mreduce64(zeta * int64(a[0][j + len]));
-                            a[0][j + len] = a[0][j] - t;
-                            a[0][j] += t;
-                        }
-                        {
-                            t = mreduce64(zeta * int64(a[1][j + len]));
-                            a[1][j + len] = a[1][j] - t;
-                            a[1][j] += t;
-                        }
-                        {
-                            t = mreduce64(zeta * int64(a[2][j + len]));
-                            a[2][j + len] = a[2][j] - t;
-                            a[2][j] += t;
-                        }
-                        {
-                            t = mreduce64(zeta * int64(a[3][j + len]));
-                            a[3][j + len] = a[3][j] - t;
-                            a[3][j] += t;
-                        }
-                        j += 1;
-                    }
-                    start = j + len;
-                }
-            }
-
-            return a;
-        }
     }
 }
