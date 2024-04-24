@@ -887,7 +887,7 @@ contract Dilithium {
         ExpandedPublicKey memory pk,
         bytes memory m
     ) public view returns (bool) {
-        Dilithium.Signature memory sig = unpack_sig(_sig);
+        Dilithium.Signature memory sig = unpackSig(_sig);
 
         bytes32 mul = keccak256(bytes.concat(pk.packed, m));
         bytes32 mur = keccak256(bytes.concat(mul));
@@ -922,7 +922,7 @@ contract Dilithium {
         }
     }
 
-    function unpack_pk(
+    function unpackPk(
         bytes memory _pk
     ) public pure returns (PublicKey memory pk) {
         unchecked {
@@ -941,7 +941,7 @@ contract Dilithium {
         }
     }
 
-    function unpack_sig(
+    function unpackSig(
         bytes memory _sig
     ) public pure returns (Signature memory sig) {
         unchecked {
